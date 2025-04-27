@@ -5,7 +5,7 @@ const CONTRACT_ADDRESSES = {
   // Local development
   1337: "0x5FbDB2315678afecb367f032d93F642f64180aa3", 
   // Sepolia testnet
-  11155111: "0x675c79fC3a3BDec7B31739683E5645CC214D0144"
+  11155111: process.env.REACT_APP_CONTRACT_ADDRESS
 };
 
 export const getWeb3Provider = async () => {
@@ -91,6 +91,7 @@ export const getUserTickets = async (address) => {
           venue: event.venue,
           used: ticket.used
         });
+        console.log(tickets);
       } catch (err) {
         console.error(`Error fetching ticket ${ticketId}:`, err);
       }

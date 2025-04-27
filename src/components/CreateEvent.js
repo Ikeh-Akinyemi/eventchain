@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { createEvent } from '../services/web3Service';
+import { createResourceInstance } from '../middleware/permissionMiddleware';
+import withPermission from '../middleware/withPermission';
 
 function CreateEvent({ walletAddress }) {
   const [eventName, setEventName] = useState('');
@@ -21,7 +23,19 @@ function CreateEvent({ walletAddress }) {
     setCreateStatus('Creating event...');
     
     try {
+      // Create event on blockchain
       const result = await createEvent(eventName, eventDate, eventVenue, ticketPrice);
+      
+      // Create event resource instance in Permit.io
+      const eventId = result.eventId || `event-${Date.now()}`;
+      
+      await createResourceInstance('event', eventId, {
+        name: eventName,
+        date: eventDate,
+        venue: eventVenue,
+        price: ticketPrice,
+        organizer_address: walletAddress
+      });
       
       setCreateStatus(`Event created successfully! Transaction: ${result.hash.substring(0, 10)}...`);
       // Reset form
@@ -88,4 +102,4 @@ function CreateEvent({ walletAddress }) {
   );
 }
 
-export default CreateEvent;
+export default withPermission(CreateEvent, 'create', 'Event');
